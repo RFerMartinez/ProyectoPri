@@ -18,8 +18,10 @@
             <TextBlock Text="{Binding ReparacionActual.Cliente.NombreCompleto}" FontSize="16" Foreground="Gray" Margin="0,0,0,20"/>
 
             <TextBlock Text="Estado Actual:" FontWeight="Bold"/>
+
             <ComboBox ItemsSource="{Binding EstadosDisponibles}" 
-                      SelectedItem="{Binding ReparacionActual.Estado}" 
+                      SelectedItem="{Binding EstadoSeleccionado}" 
+                      IsEnabled="{Binding EsEstadoModificable}"
                       Margin="0,0,0,15"/>
 
             <TextBlock Text="Falla Reportada (Cliente):" FontWeight="Bold"/>

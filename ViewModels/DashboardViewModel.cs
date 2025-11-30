@@ -28,7 +28,7 @@ namespace proyecto_paradigmas_2025.ViewModels
         {
             var todas = AlmacenDatos.Instancia.Reparaciones;
 
-            // 1. Llenar las columnas del Kanban (Filtrando por estado)
+            // 1. Llenar las columnas del Kanban
             ListaEnEspera = new ObservableCollection<Reparacion>(
                 todas.Where(r => r.Estado == EstadoReparacion.EnEspera));
 
@@ -41,18 +41,15 @@ namespace proyecto_paradigmas_2025.ViewModels
             ListaReparado = new ObservableCollection<Reparacion>(
                 todas.Where(r => r.Estado == EstadoReparacion.Reparado));
 
-            // 2. Calcular KPI: Total en Proceso
-            // Sumamos solo lo que está en el tablero (excluye Entregados y NoReparados)
+            // 2. Calcular KPI: Total en Proceso (Todo lo activo en taller)
             TotalEnProceso = ListaEnEspera.Count + ListaEnDiagnostico.Count +
                              ListaEnReparacion.Count + ListaReparado.Count;
 
-            // 3. Calcular KPI: Ganancia Estimada
-            // Tu regla de negocio: Se tiene en cuenta para ganancias si está "Reparado" o "Entregado".
-            var equiposCobrables = todas.Where(r =>
-                                    r.Estado == EstadoReparacion.Reparado ||
-                                    r.Estado == EstadoReparacion.Entregado);
+            // 3. Calcular KPI: Ganancia Estimada (SOLO ENTREGADOS)
+            // CAMBIO APLICADO: Ahora solo sumamos si el cliente ya retiró (Pagó).
+            var equiposCobrados = todas.Where(r => r.Estado == EstadoReparacion.Entregado);
 
-            GananciaEstimada = equiposCobrables.Sum(r => r.GananciaNeta);
+            GananciaEstimada = equiposCobrados.Sum(r => r.GananciaNeta);
         }
     }
 }

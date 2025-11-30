@@ -4,91 +4,191 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="1100">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#555"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <Style x:Key="InputStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="5,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#DDD"/>
+            <Setter Property="Background" Value="#FAFAFA"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border CornerRadius="4" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Background="{TemplateBinding Background}">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="BorderBrush" Value="#EEE"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#E0E0E0" BlurRadius="10" ShadowDepth="2" Direction="270" Opacity="0.5"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Background="White" Margin="20">
-            <StackPanel MaxWidth="600" HorizontalAlignment="Left">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#F4F6F7">
+        <Grid Margin="30" MaxWidth="1100" HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-                <TextBlock Text="Registrar Nuevo Ingreso" FontSize="24" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,20"/>
+            <TextBlock Grid.Row="0" Text="Registrar Nuevo Ingreso" FontSize="28" FontWeight="Bold" Foreground="#2C3E50" HorizontalAlignment="Center" Margin="0,0,0,25"/>
 
-                <Border BorderBrush="#DDD" BorderThickness="1" Padding="15" Margin="0,0,0,20" CornerRadius="5">
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource CardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Datos del Cliente" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <Border BorderBrush="#3498DB" BorderThickness="0,0,0,2" HorizontalAlignment="Left" Margin="0,0,0,15">
+                            <TextBlock Text="👤 Datos del Cliente" FontSize="18" FontWeight="Bold" Foreground="#3498DB" Margin="0,0,0,5"/>
+                        </Border>
 
-                        <TextBlock Text="Nombre Completo:"/>
-                        <TextBox Text="{Binding NombreCliente}" Height="30" Margin="0,0,0,10"/>
+                        <TextBlock Text="Nombre Completo" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding NombreCliente}" Style="{StaticResource InputStyle}" Margin="0,0,0,10"/>
 
-                        <Grid>
+                        <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="15"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="DNI:"/>
-                                <TextBox Text="{Binding DNI}" Height="30"/>
+                                <TextBlock Text="DNI" Style="{StaticResource LabelStyle}"/>
+                                <TextBox Text="{Binding DNI}" Style="{StaticResource InputStyle}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Teléfono:"/>
-                                <TextBox Text="{Binding Telefono}" Height="30"/>
+                                <TextBlock Text="Teléfono" Style="{StaticResource LabelStyle}"/>
+                                <TextBox Text="{Binding Telefono}" Style="{StaticResource InputStyle}"/>
                             </StackPanel>
                         </Grid>
 
-                        <TextBlock Text="Email:" Margin="0,10,0,0"/>
-                        <TextBox Text="{Binding Email}" Height="30" Margin="0,0,0,10"/>
+                        <TextBlock Text="Correo Electrónico" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding Email}" Style="{StaticResource InputStyle}"/>
+
+                        <Rectangle Height="50" Fill="Transparent"/>
                     </StackPanel>
                 </Border>
 
-                <TextBlock Text="Tipo de Equipo:" FontWeight="Bold"/>
-                <StackPanel Orientation="Horizontal" Margin="0,5,0,15">
-                    <RadioButton Content="Celular" IsChecked="{Binding EsCelular}" GroupName="Tipo" Margin="0,0,20,0"/>
-                    <RadioButton Content="Computadora" IsChecked="{Binding EsComputadora}" GroupName="Tipo"/>
-                </StackPanel>
+                <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <Border BorderBrush="#E67E22" BorderThickness="0,0,0,2" HorizontalAlignment="Left" Margin="0,0,0,15">
+                            <TextBlock Text="🛠 Datos del Equipo" FontSize="18" FontWeight="Bold" Foreground="#E67E22" Margin="0,0,0,5"/>
+                        </Border>
 
-                <TextBlock Text="Marca:"/>
-                <TextBox Text="{Binding Marca}" Height="30" Margin="0,0,0,10"/>
+                        <Border Background="#F9F9F9" CornerRadius="5" Padding="5" Margin="0,0,0,15" BorderBrush="#EEE" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <RadioButton Content="📱 Celular" IsChecked="{Binding EsCelular}" GroupName="Tipo" Margin="0,5,20,5" FontSize="14" FontWeight="SemiBold"/>
+                                <RadioButton Content="💻 Computadora" IsChecked="{Binding EsComputadora}" GroupName="Tipo" Margin="20,5,0,5" FontSize="14" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Border>
 
-                <TextBlock Text="Modelo:"/>
-                <TextBox Text="{Binding Modelo}" Height="30" Margin="0,0,0,10"/>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Marca" Style="{StaticResource LabelStyle}"/>
+                                <TextBox Text="{Binding Marca}" Style="{StaticResource InputStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Modelo" Style="{StaticResource LabelStyle}"/>
+                                <TextBox Text="{Binding Modelo}" Style="{StaticResource InputStyle}"/>
+                            </StackPanel>
+                        </Grid>
 
-                <TextBlock Text="Descripción de la Falla:"/>
-                <TextBox Text="{Binding Falla}" Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
+                        <TextBlock Text="Descripción de la Falla" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding Falla}" Style="{StaticResource InputStyle}" Height="60" TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top" Padding="5"/>
 
-                <StackPanel Visibility="{Binding EsCelular, Converter={StaticResource BoolToVis}}">
-                    <Border Background="#E8F8F5" Padding="10" CornerRadius="5" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="Detalles de Celular" FontWeight="Bold" Foreground="#1ABC9C"/>
-                            <TextBlock Text="IMEI:" Margin="0,5,0,0"/>
-                            <TextBox Text="{Binding IMEI}" Height="30"/>
-
-                            <TextBlock Text="Patrón / PIN:" Margin="0,5,0,0"/>
-                            <TextBox Text="{Binding Patron}" Height="30"/>
+                        <StackPanel Visibility="{Binding EsCelular, Converter={StaticResource BoolToVis}}" Margin="0,15,0,0">
+                            <TextBlock Text="Detalles (Celular)" FontWeight="Bold" Foreground="#1ABC9C" Margin="0,0,0,5" FontSize="12"/>
+                            <Border Background="#E8F8F5" Padding="10" CornerRadius="6" BorderBrush="#A2D9CE" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="15"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="IMEI" Style="{StaticResource LabelStyle}" FontSize="11"/>
+                                        <TextBox Text="{Binding IMEI}" Style="{StaticResource InputStyle}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Patrón/PIN" Style="{StaticResource LabelStyle}" FontSize="11"/>
+                                        <TextBox Text="{Binding Patron}" Style="{StaticResource InputStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
                         </StackPanel>
-                    </Border>
-                </StackPanel>
 
-                <StackPanel Visibility="{Binding EsComputadora, Converter={StaticResource BoolToVis}}">
-                    <Border Background="#EBF5FB" Padding="10" CornerRadius="5" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="Detalles de Computadora" FontWeight="Bold" Foreground="#3498DB"/>
-                            <TextBlock Text="Sistema Operativo:" Margin="0,5,0,0"/>
-                            <TextBox Text="{Binding SistemaOperativo}" Height="30"/>
-
-                            <CheckBox Content="Incluye Cargador" IsChecked="{Binding IncluyeCargador}" Margin="0,15,0,0"/>
+                        <StackPanel Visibility="{Binding EsComputadora, Converter={StaticResource BoolToVis}}" Margin="0,15,0,0">
+                            <TextBlock Text="Detalles (Computadora)" FontWeight="Bold" Foreground="#3498DB" Margin="0,0,0,5" FontSize="12"/>
+                            <Border Background="#EBF5FB" Padding="10" CornerRadius="6" BorderBrush="#AED6F1" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="Sistema Operativo" Style="{StaticResource LabelStyle}" FontSize="11"/>
+                                    <TextBox Text="{Binding SistemaOperativo}" Style="{StaticResource InputStyle}" Margin="0,0,0,10"/>
+                                    <CheckBox Content="Incluye Cargador / Fuente" IsChecked="{Binding IncluyeCargador}" FontSize="13" VerticalContentAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </Border>
-                </StackPanel>
 
-                <Button Content="GUARDAR INGRESO" 
-                        Command="{Binding GuardarCommand}"
-                        Background="#27AE60" Foreground="White" FontWeight="Bold" Height="45" Margin="0,20,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
 
-            </StackPanel>
+            <Button Grid.Row="2" 
+                    Command="{Binding GuardarCommand}"
+                    Content="GUARDAR INGRESO"
+                    Height="50" Width="300" 
+                    FontSize="16" FontWeight="Bold"
+                    Background="#27AE60" Foreground="White"
+                    Margin="0,30,0,50" Cursor="Hand" HorizontalAlignment="Center">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="25" Padding="20,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#2ECC71"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1E8449"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
         </Grid>
     </ScrollViewer>
 </UserControl>
