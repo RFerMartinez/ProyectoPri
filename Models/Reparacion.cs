@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic; // Necesario para List<>
+using System.Collections.Generic;
+using System.Collections.ObjectModel; // <--- 1. AGREGAR ESTO IMPORTANTE
 using proyecto_paradigmas_2025.Models.Base;
 using proyecto_paradigmas_2025.Models.Equipos;
 
 namespace proyecto_paradigmas_2025.Models
 {
-    // Enum para manejar estados fijos (puedes ponerlo en este mismo archivo o uno aparte)
     public enum EstadoReparacion
     {
         EnEspera,
@@ -18,27 +18,37 @@ namespace proyecto_paradigmas_2025.Models
 
     public class Reparacion : EntidadBase
     {
-        // Relaciones (Composición)
         public Cliente Cliente { get; set; }
-
-        // Polimorfismo: Aquí guardamos un Celular o una Computadora, no importa cuál
         public Equipo Equipo { get; set; }
 
-        // Datos de la reparación
         public DateTime FechaIngreso { get; set; }
-        public DateTime? FechaEntrega { get; set; } // El '?' permite que sea null
+        public DateTime? FechaEntrega { get; set; }
         public EstadoReparacion Estado { get; set; }
         public string DiagnosticoTecnico { get; set; }
 
-        // Costos
         public decimal ManoDeObra { get; set; }
-        public decimal Senia { get; set; } // Pago adelantado
+        public decimal Senia { get; set; }
 
-        // Lista de repuestos usados (Relación de 1 a muchos)
-        // Nota: Asumo que tienes la clase Componente.cs, si no la tienes la creamos abajo.
-        public List<Componente> RepuestosUsados { get; set; } = new List<Componente>();
+        // --- 2. EL CAMBIO MÁGICO ---
+        // Cambiamos List por ObservableCollection.
+        // Esto hace que la pantalla se entere automáticamente cuando haces .Add()
+        public ObservableCollection<Componente> RepuestosUsados { get; set; } = new ObservableCollection<Componente>();
 
-        // Propiedad calculada: Total a Pagar
+        // Nueva Propiedad Calculada: GANANCIA REAL
+        // (Mano de Obra + (Precio Venta Repuesto - Precio Costo Repuesto))
+        public decimal GananciaNeta
+        {
+            get
+            {
+                decimal gananciaRepuestos = 0;
+                foreach (var r in RepuestosUsados)
+                {
+                    gananciaRepuestos += (r.PrecioVenta - r.PrecioCosto);
+                }
+                return ManoDeObra + gananciaRepuestos;
+            }
+        }
+
         public decimal TotalPagar
         {
             get

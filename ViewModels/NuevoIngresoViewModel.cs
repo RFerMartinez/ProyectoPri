@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq; // Necesario para FirstOrDefault
 using System.Windows;
 using System.Windows.Input;
 using proyecto_paradigmas_2025.Core;
@@ -10,21 +11,24 @@ namespace proyecto_paradigmas_2025.ViewModels
 {
     public class NuevoIngresoViewModel : ViewModelBase
     {
+        private readonly MainViewModel _mainViewModel;
+
         // --- 1. Datos del Cliente ---
         public string NombreCliente { get; set; }
         public string DNI { get; set; }
         public string Telefono { get; set; }
+        public string Email { get; set; } // <--- NUEVO CAMPO
 
-        // --- 2. Selección de Tipo (Polimorfismo UI) ---
-        private bool _esCelular = true; // Por defecto seleccionado
+        // --- 2. Selección de Tipo ---
+        private bool _esCelular = true;
         public bool EsCelular
         {
             get { return _esCelular; }
             set
             {
                 _esCelular = value;
-                OnPropertyChanged(); // Avisar a la vista para ocultar/mostrar paneles
-                OnPropertyChanged(nameof(EsComputadora)); // El opuesto cambia también
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(EsComputadora));
             }
         }
         public bool EsComputadora
@@ -32,12 +36,7 @@ namespace proyecto_paradigmas_2025.ViewModels
             get { return !EsCelular; }
             set
             {
-                // Si la vista nos dice que EsComputadora es TRUE,
-                // entonces forzamos a EsCelular a ser FALSE.
-                if (value)
-                {
-                    EsCelular = false;
-                }
+                if (value) EsCelular = false;
             }
         }
 
@@ -46,43 +45,60 @@ namespace proyecto_paradigmas_2025.ViewModels
         public string Modelo { get; set; }
         public string Falla { get; set; }
 
-        // --- 4. Datos Específicos (Celular) ---
+        // --- 4. Datos Específicos ---
         public string IMEI { get; set; }
         public string Patron { get; set; }
-
-        // --- 5. Datos Específicos (PC) ---
         public string SistemaOperativo { get; set; }
         public bool IncluyeCargador { get; set; }
 
-        // --- COMANDOS ---
         public ICommand GuardarCommand { get; set; }
 
-        public NuevoIngresoViewModel()
+        // Constructor recibe MainViewModel para poder navegar
+        public NuevoIngresoViewModel(MainViewModel mainVM)
         {
+            _mainViewModel = mainVM;
             GuardarCommand = new RelayCommand(Guardar);
         }
 
+        // Constructor vacío para evitar errores en tiempo de diseño
+        public NuevoIngresoViewModel() { }
+
         private void Guardar(object obj)
         {
-            // 1. Validaciones básicas (puedes agregar más)
-            if (string.IsNullOrEmpty(NombreCliente) || string.IsNullOrEmpty(Marca))
+            // 1. Validaciones
+            if (string.IsNullOrEmpty(NombreCliente) || string.IsNullOrEmpty(Marca) || string.IsNullOrEmpty(DNI))
             {
-                MessageBox.Show("Por favor complete nombre y marca como mínimo.");
+                MessageBox.Show("Nombre, DNI y Marca son obligatorios.");
                 return;
             }
 
-            // 2. Crear Cliente
-            var nuevoCliente = new Cliente
+            // 2. Buscar o Crear Cliente
+            var clienteFinal = AlmacenDatos.Instancia.Clientes
+                                .FirstOrDefault(c => c.DNI == this.DNI);
+
+            if (clienteFinal == null)
             {
-                Id = new Random().Next(100, 9999), // ID temporal random
-                NombreCompleto = NombreCliente,
-                DNI = DNI,
-                Telefono = Telefono
-            };
+                // Nuevo Cliente
+                clienteFinal = new Cliente
+                {
+                    Id = new Random().Next(100, 9999),
+                    NombreCompleto = NombreCliente,
+                    DNI = DNI,
+                    Telefono = Telefono,
+                    Email = Email // <--- Guardamos el Email
+                };
+                AlmacenDatos.Instancia.Clientes.Add(clienteFinal);
+            }
+            else
+            {
+                // Cliente Existente: Actualizamos datos de contacto
+                clienteFinal.NombreCompleto = NombreCliente;
+                clienteFinal.Telefono = Telefono;
+                clienteFinal.Email = Email; // <--- Actualizamos el Email
+            }
 
-            // 3. Crear Equipo (POLIMORFISMO EN ACCIÓN)
+            // 3. Crear Equipo
             Equipo equipoNuevo;
-
             if (EsCelular)
             {
                 equipoNuevo = new Celular
@@ -106,28 +122,56 @@ namespace proyecto_paradigmas_2025.ViewModels
                     IncluyeCargador = IncluyeCargador
                 };
             }
-
-            // Asignar ID al equipo
             equipoNuevo.Id = new Random().Next(100, 9999);
 
-            // 4. Crear la Reparación
+            // 4. Crear Reparación
             var nuevaReparacion = new Reparacion
             {
                 Id = new Random().Next(100, 9999),
-                Cliente = nuevoCliente,
+                Cliente = clienteFinal,
                 Equipo = equipoNuevo,
                 FechaIngreso = DateTime.Now,
                 Estado = EstadoReparacion.EnEspera,
-                ManoDeObra = 0 // Se define después
+                ManoDeObra = 0
             };
 
-            // 5. Guardar en Singleton
             AlmacenDatos.Instancia.Reparaciones.Add(nuevaReparacion);
-            AlmacenDatos.Instancia.Clientes.Add(nuevoCliente);
 
-            MessageBox.Show("Ingreso registrado con éxito!");
+            MessageBox.Show($"Ingreso registrado correctamente.\nCliente: {clienteFinal.NombreCompleto}");
 
-            // Opcional: Limpiar campos aquí...
+            // 5. Limpiar y Redirigir
+            LimpiarFormulario();
+
+            // Navegamos a la lista de reparaciones pasando el MainViewModel
+            _mainViewModel.VistaActual = new GestionReparacionesViewModel(_mainViewModel);
+        }
+
+        private void LimpiarFormulario()
+        {
+            NombreCliente = string.Empty;
+            DNI = string.Empty;
+            Telefono = string.Empty;
+            Email = string.Empty;
+            Marca = string.Empty;
+            Modelo = string.Empty;
+            Falla = string.Empty;
+            IMEI = string.Empty;
+            Patron = string.Empty;
+            SistemaOperativo = string.Empty;
+            IncluyeCargador = false;
+
+            // Notificamos a la vista que todo se vació
+            OnPropertyChanged(nameof(NombreCliente));
+            OnPropertyChanged(nameof(DNI));
+            OnPropertyChanged(nameof(Telefono));
+            OnPropertyChanged(nameof(Email));
+            OnPropertyChanged(nameof(Marca));
+            OnPropertyChanged(nameof(Modelo));
+            OnPropertyChanged(nameof(Falla));
+            OnPropertyChanged(nameof(IMEI));
+            OnPropertyChanged(nameof(Patron));
+            OnPropertyChanged(nameof(SistemaOperativo));
+            OnPropertyChanged(nameof(IncluyeCargador));
         }
     }
 }

@@ -36,6 +36,10 @@
             <v:DetalleClienteView/>
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type vm:GestionInventarioViewModel}">
+            <v:ListaInventarioView/>
+        </DataTemplate>
+
     </Window.Resources>
 
     <Grid>
@@ -62,6 +66,10 @@
 
                 <Button Content="Clientes" 
                         Command="{Binding MostrarClientesCommand}"
+                        Height="40" Margin="0,5" Background="#34495E" Foreground="White" BorderThickness="0"/>
+
+                <Button Content="Inventario" 
+                        Command="{Binding MostrarInventarioCommand}"
                         Height="40" Margin="0,5" Background="#34495E" Foreground="White" BorderThickness="0"/>
             </StackPanel>
         </Border>

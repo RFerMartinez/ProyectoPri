@@ -13,6 +13,17 @@ namespace proyecto_paradigmas_2025.ViewModels
         // El objeto que estamos editando
         public Reparacion ReparacionActual { get; set; }
 
+        public bool EsEditable
+        {
+            get
+            {
+                // Solo es editable si NO está reparado y NO está entregado y NO está 'NoReparado'
+                return ReparacionActual.Estado != EstadoReparacion.Reparado &&
+                       ReparacionActual.Estado != EstadoReparacion.Entregado &&
+                       ReparacionActual.Estado != EstadoReparacion.NoReparado;
+            }
+        }
+
         // Listas para los ComboBox
         public ObservableCollection<EstadoReparacion> EstadosDisponibles { get; set; }
         public ObservableCollection<Componente> InventarioDisponible { get; set; }
@@ -24,6 +35,7 @@ namespace proyecto_paradigmas_2025.ViewModels
         public ICommand GuardarCambiosCommand { get; set; }
         public ICommand AgregarRepuestoCommand { get; set; }
         public ICommand VolverCommand { get; set; }
+        public ICommand FacturarCommand { get; set; }
 
         // Constructor que recibe la reparación seleccionada
         public DetalleReparacionViewModel(Reparacion reparacion, MainViewModel mainVM)
@@ -52,6 +64,8 @@ namespace proyecto_paradigmas_2025.ViewModels
             });
 
             AgregarRepuestoCommand = new RelayCommand(AgregarRepuesto);
+
+            FacturarCommand = new RelayCommand(o => GenerarFactura());
         }
 
         private void AgregarRepuesto(object obj)
@@ -72,6 +86,29 @@ namespace proyecto_paradigmas_2025.ViewModels
             // 3. Avisar a la vista que actualice los totales
             OnPropertyChanged(nameof(ReparacionActual));
             MessageBox.Show($"Se agregó {ComponenteSeleccionado.Nombre}. Costo actualizado.");
+        }
+
+        private void GenerarFactura()
+        {
+            // Validación opcional: No facturar si no está terminado
+            if (ReparacionActual.Estado != EstadoReparacion.Reparado &&
+                ReparacionActual.Estado != EstadoReparacion.Entregado)
+            {
+                MessageBox.Show("Solo se pueden facturar equipos 'Reparados' o 'Entregados'.");
+                return;
+            }
+
+            try
+            {
+                // LLAMADA AL SERVICIO
+                Services.ServicioFacturacion.GenerarFactura(ReparacionActual);
+
+                MessageBox.Show($"¡Factura generada exitosamente!\nRevise su Escritorio.", "Facturación");
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Error al generar factura: {ex.Message}");
+            }
         }
     }
 }

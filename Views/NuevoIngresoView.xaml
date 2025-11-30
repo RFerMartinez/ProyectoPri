@@ -38,6 +38,9 @@
                                 <TextBox Text="{Binding Telefono}" Height="30"/>
                             </StackPanel>
                         </Grid>
+
+                        <TextBlock Text="Email:" Margin="0,10,0,0"/>
+                        <TextBox Text="{Binding Email}" Height="30" Margin="0,0,0,10"/>
                     </StackPanel>
                 </Border>
 

@@ -1,44 +1,58 @@
-﻿using System.Linq;
+﻿using System.Collections.ObjectModel;
+using System.Linq;
 using proyecto_paradigmas_2025.Core;
 using proyecto_paradigmas_2025.Data;
-using proyecto_paradigmas_2025.Models; // Para acceder al Enum EstadoReparacion
+using proyecto_paradigmas_2025.Models;
 
 namespace proyecto_paradigmas_2025.ViewModels
 {
     public class DashboardViewModel : ViewModelBase
     {
-        // Propiedades para mostrar en las "Tarjetas" del dashboard
-        public int CantidadPendientes { get; set; }
-        public int CantidadEnTaller { get; set; }
-        public int CantidadListos { get; set; }
-        public decimal DineroRecaudadoHoy { get; set; }
+        // --- KPIS (Indicadores Superiores) ---
+        public decimal GananciaEstimada { get; set; }
+        public int TotalEnProceso { get; set; }
+
+        // --- COLUMNAS KANBAN (Listas Visuales) ---
+        // Usamos ObservableCollection para que si algo cambia, se refleje.
+        public ObservableCollection<Reparacion> ListaEnEspera { get; set; }
+        public ObservableCollection<Reparacion> ListaEnDiagnostico { get; set; }
+        public ObservableCollection<Reparacion> ListaEnReparacion { get; set; }
+        public ObservableCollection<Reparacion> ListaReparado { get; set; }
 
         public DashboardViewModel()
         {
-            CargarEstadisticas();
+            CargarDatos();
         }
 
-        private void CargarEstadisticas()
+        public void CargarDatos()
         {
-            // Accedemos a los datos en memoria (Singleton)
-            var datos = AlmacenDatos.Instancia;
+            var todas = AlmacenDatos.Instancia.Reparaciones;
 
-            // Usamos LINQ para filtrar y contar (Programación Funcional básica)
+            // 1. Llenar las columnas del Kanban (Filtrando por estado)
+            ListaEnEspera = new ObservableCollection<Reparacion>(
+                todas.Where(r => r.Estado == EstadoReparacion.EnEspera));
 
-            // 1. Pendientes (En espera o Diagnóstico)
-            CantidadPendientes = datos.Reparaciones
-                .Count(r => r.Estado == EstadoReparacion.EnEspera || r.Estado == EstadoReparacion.EnDiagnostico);
+            ListaEnDiagnostico = new ObservableCollection<Reparacion>(
+                todas.Where(r => r.Estado == EstadoReparacion.EnDiagnostico));
 
-            // 2. En Taller (En reparación)
-            CantidadEnTaller = datos.Reparaciones
-                .Count(r => r.Estado == EstadoReparacion.EnReparacion);
+            ListaEnReparacion = new ObservableCollection<Reparacion>(
+                todas.Where(r => r.Estado == EstadoReparacion.EnReparacion));
 
-            // 3. Listos para entregar (Reparados)
-            CantidadListos = datos.Reparaciones
-                .Count(r => r.Estado == EstadoReparacion.Reparado);
+            ListaReparado = new ObservableCollection<Reparacion>(
+                todas.Where(r => r.Estado == EstadoReparacion.Reparado));
 
-            // Nota: Al ser propiedades simples (int), no necesito OnPropertyChanged aquí 
-            // porque se asignan en el constructor antes de que la vista se muestre.
+            // 2. Calcular KPI: Total en Proceso
+            // Sumamos solo lo que está en el tablero (excluye Entregados y NoReparados)
+            TotalEnProceso = ListaEnEspera.Count + ListaEnDiagnostico.Count +
+                             ListaEnReparacion.Count + ListaReparado.Count;
+
+            // 3. Calcular KPI: Ganancia Estimada
+            // Tu regla de negocio: Se tiene en cuenta para ganancias si está "Reparado" o "Entregado".
+            var equiposCobrables = todas.Where(r =>
+                                    r.Estado == EstadoReparacion.Reparado ||
+                                    r.Estado == EstadoReparacion.Entregado);
+
+            GananciaEstimada = equiposCobrables.Sum(r => r.GananciaNeta);
         }
     }
 }

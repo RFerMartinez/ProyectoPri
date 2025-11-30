@@ -79,6 +79,9 @@
     <Compile Include="Views\ListaClientesView.xaml.cs">
       <DependentUpon>ListaClientesView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ListaInventarioView.xaml.cs">
+      <DependentUpon>ListaInventarioView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ListaReparacionesView.xaml.cs">
       <DependentUpon>ListaReparacionesView.xaml</DependentUpon>
     </Compile>
@@ -114,6 +117,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ListaClientesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ListaInventarioView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
